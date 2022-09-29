@@ -1,0 +1,8 @@
+/*全局css，使得页面占满整个屏幕，需要在main.js页面进行注册
+*/
+*{
+    margin:0;
+    padding:0;
+    box-sizing: border-box;
+    height: 100%;
+}
