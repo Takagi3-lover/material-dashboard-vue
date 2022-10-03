@@ -51,6 +51,14 @@
                 @click="backHome"
             >返回
             </el-button>
+            <el-button
+                class="el-icon-back"
+                type="success"
+                size="mini"
+                plain
+                @click="load"
+            >刷新
+            </el-button>
           </div>
         </div>
 
@@ -123,13 +131,22 @@ export default {
       buttonMsg: "编辑",
       isEditDesign: false,
       imgSrc: require("@/assets/img/personalBG.png"),
+      avatar: require("@/assets/img/Ava.jpg"),
       nickname: "Ava",
       design: "关注...也不是不可以啦！",
       num1: 13,
       num2: 44,
       num3: 990,
       v: 3,
+      email: ""
     };
+  },
+  created() {
+    this.load();
+  },
+
+  mounted() {
+    this.load();
   },
   methods: {
     edit() {
@@ -142,7 +159,25 @@ export default {
         this.isEditDesign = false;
       }
     },
-
+    load() {
+      this.email = sessionStorage.getItem("email");
+      this.request.post('/getHeader', {
+        email: this.email
+      }).then(res => {
+        if (res.code === 200) {
+          console.log(res.nickname );
+          console.log(res);
+          this.nickname = res.nickname
+          this.design = res.design
+          this.num1 = res.num1
+          this.num2 = res.num2
+          this.num3 = res.num3
+          this.v = res.v_level
+        } else {
+          this.$message.error('获取用户信息失败')
+        }
+      })
+    },
     reload() {
       this.request.get("/user/info").then((res) => {
         this.nickname = res.data.data.nickname;

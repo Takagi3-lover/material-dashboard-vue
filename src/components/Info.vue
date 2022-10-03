@@ -86,6 +86,24 @@ export default {
       design: String,
     };
   },
+  // created() {
+  //   this.email = sessionStorage.getItem('email');
+  //   this.request.post('/getHeader', {email: this.email}).then(res => {
+  //     this.avatar = res.avatar
+  //     this.mobilePhoneNumber = res.mobilePhoneNumber
+  //     this.area = res.area
+  //     this.createDate = res.createDate
+  //     this.nickname = res.nickname
+  //     this.sex = res.sex
+  //     this.design = res.design
+  //   }).catch(err => {
+  //     this.$message({
+  //       message: '网络错误',
+  //       type: 'error'
+  //     });
+  //   })
+  //
+  // },
   mounted() {
     this.load();
   },
@@ -95,9 +113,9 @@ export default {
       this.mobilePhoneNumber = "12342333"
       this.area = "北京"
       this.createDate = "2021-09-18"
-      this.nickname="Avava AvA"
-      this.design="关注...也不是不可以啦！"
-      this.sex="女"
+      this.nickname = "Avava AvA"
+      this.design = "关注...也不是不可以啦！"
+      this.sex = "女"
     }
   }
 };
