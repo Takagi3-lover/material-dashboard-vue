@@ -127,7 +127,10 @@ export default {
       this.$refs.userForm.validateField('email', (errorMsg) => {
         if (!errorMsg) {
           //向后端发送请求，发送验证码
-          this.request.post('/sendCode', this.user).then(res => {
+          this.request.post('/sendCode',
+              {
+                mail: this.user.email
+              }).then(res => {
             if (res.data.code === 200) {
               this.$message({
                 message: '验证码发送成功，请前往邮箱查收',
@@ -171,12 +174,12 @@ export default {
         this.$refs.userForm.validate((errorMsg) => {
           if (!errorMsg) {
             //向后端提交邮箱和验证码，后端判断是否匹配，若匹配则身份验证成功，进入重置密码页面，否则显示错误信息
-            this.request.post('/verifyCode', this.user).then(res => {
+            this.request.post('/identify', this.user).then(res => {
               if (res.code === 200) {
                 this.active++;
               } else {
                 this.$message({
-                  message: res.msg,
+                  message: "验证失败",
                   type: 'error'
                 });
               }
@@ -189,16 +192,18 @@ export default {
           }
         })
       } else if (this.active === 1) {
+        console.log(this.user.email);
         //如果当前处在步骤第二步，则在进入下一步骤之前，先校验密码格式是否正确
         this.$refs.userForm.validate((errorMsg) => {
-          if (!errorMsg) {
+          console.log(errorMsg);
+          if (errorMsg) {
             //向后端提交密码，后端判断是否匹配，若匹配则重置密码成功，否则显示错误信息
             this.request.post('findPassword', this.user).then(res => {
               if (res.code === 200) {
                 this.active++;
               } else {
                 this.$message({
-                  message: res.msg,
+                  message: "重置密码失败",
                   type: 'error'
                 });
               }
