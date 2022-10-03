@@ -66,6 +66,8 @@ export default {
           this.request.post('/login', this.user).then(res => {
             if (res === 200) {
               this.$message.success('登陆成功');
+              //使用sessionStorage存储用户邮箱
+              sessionStorage.setItem('email', this.user.username);
               this.$router.push('/mainPage');
             } else {
               this.$message.error(res.data.msg);

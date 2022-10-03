@@ -34,10 +34,13 @@
 
       <div style="margin: 10px 0 10px 0">
         <el-upload
+            ref="upload"
             class="upload-demo"
             drag
-            action="https://jsonplaceholder.typicode.com/posts/"
-            multiple>
+            :data="uploadData"
+            :before-upload="beforeUpload"
+            action="/api/uploadFile"
+            :on-success="uploadFileSuccess">
           <i class="el-icon-upload"></i>
           <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
           <div class="el-upload__tip" slot="tip">只能上传模板文件，且不超过500kb</div>
@@ -82,14 +85,22 @@ export default {
   name: "PredictPage",
   data() {
     return {
-      active: 0,
+      active: 1,
       dialogImageUrl: '',
       dialogVisible: false,
       fileList: [],
       isProcessFinished: false,
+      uploadData: null,
     }
   },
   methods: {
+    uploadFileSuccess(response) {
+      console.log(response);
+      this.$message({
+        message: '上传成功',
+        type: 'success'
+      });
+    },
     downloadTemplate() {
       this.$message({
         message: '下载成功',
@@ -103,6 +114,16 @@ export default {
         type: 'success'
       });
     },
+    beforeUpload() {
+      this.uploadData = {username: 'admin'};
+      console.log(this.uploadData)
+      let promise = new Promise((resolve) => {
+        this.$nextTick(function () {
+          resolve(true);
+        });
+      });
+      return promise; //通过返回一个promis对象解决
+    },
     dataProcess() {
       this.$message({
         message: '数据处理成功',
@@ -111,6 +132,9 @@ export default {
     },
     next() {
       if (this.active++ > 3) this.active = 0;
+      if (this.active === 1) {
+        // this.$refs['upload'].clearFiles();
+      }
     },
     prev() {
       if (this.active-- < 0) this.active = 3;

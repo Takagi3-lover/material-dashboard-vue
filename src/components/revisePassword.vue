@@ -69,6 +69,9 @@
 <script>
 export default {
   name: "revisePassword",
+  created() {
+    this.user.email = JSON.parse(sessionStorage.getItem("email"));
+  },
   data() {
     return {
       active: 0,
@@ -125,9 +128,20 @@ export default {
             type: 'warning'
           });
         } else {
-          this.user.password = '';
-          this.user.confirmPassword = '';
-          this.active++;
+          this.request.post('/updatePassword', this.user).then(res => {
+            if (res.data.code === 200) {
+              this.$message({
+                message: '密码修改成功',
+                type: 'success'
+              });
+              this.active++;
+            } else {
+              this.$message({
+                message: '密码修改失败',
+                type: 'warning'
+              });
+            }
+          })
         }
       } else {
         this.active++;

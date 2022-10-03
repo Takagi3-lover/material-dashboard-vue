@@ -152,9 +152,9 @@ export default {
 
       //  若成功发送验证码，则开始倒计时，一分钟后可以再次发送
       if (ifCountStart) {
-        let count = 60;
+        let count = 120;
         let timer = setInterval(() => {
-          if (count > 0 && count <= 60) {
+          if (count > 0 && count <= 120) {
             count--;
             this.statusMsg = count + '秒';
           } else {

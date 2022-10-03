@@ -98,7 +98,6 @@ export default {
       this.nickname="Avava AvA"
       this.design="关注...也不是不可以啦！"
       this.sex="女"
-
     }
   }
 };

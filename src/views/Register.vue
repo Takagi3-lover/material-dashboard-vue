@@ -108,23 +108,23 @@ export default {
       this.$refs.registerForm.validate((errorMsg) => {
         console.log(errorMsg)
         if (errorMsg) {
-          // //  校验通过
-          // this.request.post('/register', this.register).then(res => {
-          //   if (res.code=== 200) {
-          //     //  注册成功
-          //     this.$message.success('注册成功');
-          //     this.$router.push('/login');
-          //   } else {
-          //     //  注册失败
-          //     this.$message.error(res.msg);
-          //   }
-          // }).catch(err => {
-          //   //  注册失败
-          //   this.$message({
-          //     message: '注册失败',
-          //     type: 'error'
-          //   });
-          // })
+          //  校验通过
+          this.request.post('/register', this.register).then(res => {
+            if (res.code=== 200) {
+              //  注册成功
+              this.$message.success('注册成功');
+              this.$router.push('/login');
+            } else {
+              //  注册失败
+              this.$message.error(res.msg);
+            }
+          }).catch(err => {
+            //  注册失败
+            this.$message({
+              message: '注册失败',
+              type: 'error'
+            });
+          })
         } else {
           //  校验失败
           this.$message({
@@ -138,9 +138,7 @@ export default {
     //发送验证码
     sendCode() {
       let ifCountStart = false;
-      //  若邮箱格式正确，发送验证码
       this.$refs['registerForm'].validateField('email', (errorMsg) => {
-        console.log(errorMsg)
         if (!errorMsg) {
           this.request.post('/sendCode',
               {
@@ -148,7 +146,6 @@ export default {
               }
           ).then(res => {
             if (res === 200) {
-              this.statusMsg = '验证码已发送'
               ifCountStart = true;
             } else {
               this.statusMsg = '验证码发送失败'

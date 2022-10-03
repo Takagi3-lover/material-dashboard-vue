@@ -77,18 +77,18 @@ export default {
   data() {
     return {
       //当前所属的步骤
-      active: 0,
+      active: 1,
       statusMsg: '发送验证码',
       ifSend: false,//是否发送验证码
       //存储找回密码可能用到的信息，包括邮箱，电话，密码，验证码等
       user: {
         email: '',
+        email_new: '',
         phone: '',
         code: '',
         password: '',
         confirmPassword: '',
         confirmEmail: '',
-
       },
       changeEmailRule: {
         email: [
