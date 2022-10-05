@@ -10,23 +10,27 @@
         title="修改个人信息"
         :visible.sync="dialogVisible"
         width="60%"
+        center
+        height="100%"
+        :append-to-body="true"
         :before-close="handleClose">
       <el-form :model="form" :rules="rules" ref="form" label-width="150px">
         <div class="updateinfo">
-          <div class="center">
-            <el-form-item label="头像" prop="avatar">
-                            <img style="width:150px;height:110px" src="@/assets/img/logo.png" alt=""/>
+          <div style="flex: auto">
+            <el-form-item label="头像" prop="avatar" style="text-align: center">
+              <img style="width:150px;height:100px" src="@/assets/img/logo.png" alt=""/>
             </el-form-item>
+            <el-form-item label="个性签名" prop="design">
+              <el-input v-model="form.design"></el-input>
+            </el-form-item>
+
           </div>
           <div class="left">
-            <el-form-item label="账号密码" prop="password">
-              <el-input v-model="form.password"></el-input>
+            <el-form-item label="邮箱" prop="email">
+              <el-input v-model="form.email"></el-input>
             </el-form-item>
             <el-form-item label="昵称" prop="nickname">
               <el-input v-model="form.nickname"></el-input>
-            </el-form-item>
-            <el-form-item label="年龄" prop="age">
-              <el-input v-model="form.age"></el-input>
             </el-form-item>
             <el-form-item label="性别" prop="sex">
               <el-switch
@@ -35,38 +39,28 @@
                   inactive-color="#ff4949"
                   active-text="男"
                   inactive-text="女"
-                  :active-value= "1"
-                  :inactive-value= "0"
+                  :active-value="1"
+                  :inactive-value="0"
               >
               </el-switch>
             </el-form-item>
-            <el-form-item label="邮箱" prop="email">
-              <el-input v-model="form.email"></el-input>
-            </el-form-item>
+
 
           </div>
+
           <div class="right">
-            <el-form-item label="用户编号" prop="id">
-              <el-input v-model="form.id" disabled></el-input>
+
+            <el-form-item label="手机号码" prop="mobilePhoneNumber">
+              <el-input v-model="form.mobilePhoneNumber"></el-input>
             </el-form-item>
-            <el-form-item label="账号" prop="account">
-              <el-input v-model="form.account" disabled></el-input>
+
+            <el-form-item label="注册日期" prop="createDate">
+              <el-input disabled v-model="form.createDate" ></el-input>
             </el-form-item>
             <el-form-item label="地区" prop="area">
               <el-input v-model="form.area"></el-input>
             </el-form-item>
-            <el-form-item label="兴趣爱好" prop="hobby">
-              <el-input v-model="form.hobby"></el-input>
-            </el-form-item>
-            <el-form-item label="职业" prop="work">
-              <el-input v-model="form.work"></el-input>
-            </el-form-item>
-            <el-form-item label="个性签名" prop="design">
-              <el-input v-model="form.design"></el-input>
-            </el-form-item>
-            <el-form-item label="手机号码" prop="mobilePhoneNumber">
-              <el-input v-model="form.mobilePhoneNumber"></el-input>
-            </el-form-item>
+
           </div>
         </div>
       </el-form>
@@ -86,7 +80,22 @@ export default {
     return {
       dialogVisible: false,
       form: {
-
+        avatar: '',
+        email: '',
+        mobilePhoneNumber: '',
+        area: '',
+        createDate: '',
+        nickname: '',
+        sex: 0,
+        design: '',
+      },
+      rules: {
+        nickname: [
+          {required: true, message: "昵称不能为空", trigger: "blur"},
+        ],
+        email: [
+          {required: true, message: "邮箱不能为空", trigger: "blur"},
+        ],
       },
     };
   },
@@ -95,26 +104,72 @@ export default {
   },
   methods: {
     open() {
+      this.email = sessionStorage.getItem('email');
+      this.request.post('/getPersonInfo', {email: this.email}).then(res => {
+        if (res.code === 200) {
+          this.form.avatar = res.avatar
+          this.form.email = res.email
+          this.form.mobilePhoneNumber = res.mobilePhoneNumber
+          this.form.area = res.area
+          this.form.createDate = res.createDate
+          this.form.nickname = res.nickname
+          this.form.sex = res.sex
+          this.form.design = res.design
+        } else {
+          this.$message.error("信息拉取失败")
+        }
+      }).catch(() => {
+        this.$message({
+          message: '网络错误',
+          type: 'error'
+        });
+      })
+
       this.dialogVisible = true;
     },
     handleClose() {
       this.dialogVisible = false;
-      //发送信号，更新修改后的显示数据
+      // //发送信号，更新修改后的显示数据
       // this.$emit("flesh");
     },
+    submit() {
+      this.$refs['form'].validate((valid) => {
+        if (valid) {
+          this.request.post('/updatePersonInfo', this.form).then(res => {
+            if (res.code === 200) {
+              this.$message.success("修改成功")
+              this.dialogVisible = false;
+              //发送信号，更新修改后的显示数据
+              this.$emit("flesh");
+            } else {
+              this.$message.error("修改失败")
+            }
+          }).catch(() => {
+            this.$message({
+              message: '网络错误',
+              type: 'error'
+            });
+          })
+        } else {
+          this.$message.error("请检查输入")
+        }
+      });
+    }
   },
 };
 </script>
 
 <style scoped>
 .updateinfo {
-  height: 350px;
+  height: 390px;
   overflow: auto;
 }
+
 .left {
-  /* width: 330px; */
+  /*width: 330px;*/
   float: left;
 }
+
 .right {
   overflow: hidden;
 }

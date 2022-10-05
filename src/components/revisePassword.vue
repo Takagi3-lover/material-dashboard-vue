@@ -79,7 +79,8 @@ export default {
         email: '',
         code: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        password_old: ''
       },
       findPswRules: {
         email: [
@@ -117,6 +118,35 @@ export default {
     next() {
       //  如果active=0,则要密码和确认密码这两个字段符合规则
       if (this.active === 0) {
+        this.user.email = sessionStorage.getItem("email");
+        this.$refs.userForm.validate((errorMsg) => {
+          console.log(errorMsg)
+          if (errorMsg) {
+            this.request.post('/login', {
+              username: this.user.email,
+              password: this.user.password
+            }).then(res => {
+              if (res === 200) {
+                this.$message({
+                  message: '身份验证成功',
+                  type: 'success'
+                });
+                this.user.password_old = this.user.password;
+                this.user.password = '';
+                this.user.confirmPassword = '';
+                this.active++;
+              } else {
+                this.$message({
+                  message: '身份验证失败',
+                  type: 'error'
+                });
+              }
+            })
+          } else {
+            this.$message.error('请输入正确的用户名和密码');
+          }
+        })
+      } else if (this.active === 1) {
         if (this.user.password !== this.user.confirmPassword) {
           this.$message({
             message: '两次密码不一致',
@@ -128,8 +158,12 @@ export default {
             type: 'warning'
           });
         } else {
-          this.request.post('/updatePassword', this.user).then(res => {
-            if (res.data.code === 200) {
+          this.request.post('/updatePassword', {
+            email: this.user.email,
+            password_old: this.user.password_old,
+            password_new: this.user.password
+          }).then(res => {
+            if (res === 200) {
               this.$message({
                 message: '密码修改成功',
                 type: 'success'
@@ -138,7 +172,7 @@ export default {
             } else {
               this.$message({
                 message: '密码修改失败',
-                type: 'warning'
+                type: 'error'
               });
             }
           })
@@ -149,6 +183,8 @@ export default {
     },
     //上一步
     prev() {
+      this.user.password = '';
+      this.user.confirmPassword = '';
       this.active--;
     },
   }

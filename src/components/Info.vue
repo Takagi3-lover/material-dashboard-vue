@@ -8,6 +8,9 @@
   <div>
     <el-card>
       <el-descriptions class="margin-top" title="简介" :column="2" border>
+        <template slot="extra">
+          <el-button type="primary" size="small" @click="openDia">操作</el-button>
+        </template>
         <el-descriptions-item>
           <template slot="label">
             <i class="el-icon-picture-outline"></i>
@@ -71,9 +74,11 @@
 </template>
 
 <script>
+
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: "Info",
+
   data() {
     return {
       avatar: String,
@@ -86,27 +91,36 @@ export default {
       design: String,
     };
   },
-  // created() {
-  //   this.email = sessionStorage.getItem('email');
-  //   this.request.post('/getHeader', {email: this.email}).then(res => {
-  //     this.avatar = res.avatar
-  //     this.mobilePhoneNumber = res.mobilePhoneNumber
-  //     this.area = res.area
-  //     this.createDate = res.createDate
-  //     this.nickname = res.nickname
-  //     this.sex = res.sex
-  //     this.design = res.design
-  //   }).catch(err => {
-  //     this.$message({
-  //       message: '网络错误',
-  //       type: 'error'
-  //     });
-  //   })
-  //
-  // },
-  mounted() {
-    this.load();
+  created() {
+    this.email = sessionStorage.getItem('email');
+    this.request.post('/getPersonInfo', {email: this.email}).then(res => {
+      if (res.code === 200) {
+        this.avatar = res.avatar
+        this.email = res.email
+        this.mobilePhoneNumber = res.mobilePhoneNumber
+        this.area = res.area
+        this.createDate = res.createDate
+        this.nickname = res.nickname
+        if (res.sex === 0) {
+          this.sex = '女'
+        } else {
+          this.sex = '男'
+        }
+        this.design = res.design
+      } else {
+        this.$message.error("信息拉取失败")
+      }
+    }).catch(() => {
+      this.$message({
+        message: '网络错误',
+        type: 'error'
+      });
+    })
+
   },
+  // mounted() {
+  //   this.load();
+  // },
   methods: {
     load() {
       this.email = "12306@gmail.com"
@@ -116,6 +130,10 @@ export default {
       this.nickname = "Avava AvA"
       this.design = "关注...也不是不可以啦！"
       this.sex = "女"
+    },
+    openDia() {
+      //  调用父组件中的openDia方法
+      this.$parent.openDia()
     }
   }
 };

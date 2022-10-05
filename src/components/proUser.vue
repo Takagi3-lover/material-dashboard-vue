@@ -88,19 +88,22 @@ export default {
     return {
       QRcodeSrc: require("@/assets/img/payQRcode.jpg"),
       form: {
-        vipType: 0,
-        userID: 0,
+        v_level: 0,
+        email: '',
       },
     }
   },
   methods: {
     change(type) {
-      this.form.vipType = type;
+      this.form.v_level = type;
     },
     confirm() {
+      this.form.email=sessionStorage.getItem("email");
       //像后端传回form数据
-      this.request.post("/user/pay", this.form).then(res => {
-        if (res.data.code === 200) {
+      this.request.post("/charge", this.form).then(res => {
+        if (res.code === 200) {
+          //调用Personal组件中的load方法，重新加载用户信息
+          this.$parent.load();
           this.$message({
             message: '感谢您的支持！pro用户高速通道已开通！',
             type: "success",

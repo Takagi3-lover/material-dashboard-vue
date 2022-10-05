@@ -115,7 +115,7 @@ export default {
       });
     },
     beforeUpload() {
-      this.uploadData = {username: 'admin'};
+      this.uploadData = {username: '1621718895@qq.com'};
       console.log(this.uploadData)
       let promise = new Promise((resolve) => {
         this.$nextTick(function () {

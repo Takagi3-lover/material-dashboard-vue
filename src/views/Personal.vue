@@ -21,7 +21,7 @@
             <span> {{ nickname }} </span>
           </div>
           <!--          身份标识，普通用户、pro用户等-->
-          <div class="user-v" v-if="v === 3">
+          <div class="user-v" v-if="v>0">
             <img src="@/assets/img/pro.png" class="user-v-img" alt="身份标识"/>
             <span class="user-v-font">高级用户</span>
           </div>
@@ -50,14 +50,6 @@
                 plain
                 @click="backHome"
             >返回
-            </el-button>
-            <el-button
-                class="el-icon-back"
-                type="success"
-                size="mini"
-                plain
-                @click="load"
-            >刷新
             </el-button>
           </div>
         </div>
@@ -118,14 +110,20 @@
         <router-view></router-view>
       </div>
     </div>
+    <personal-dia ref="dia" @flesh="load"/>
   </div>
 </template>
 
 <script>
 
+import PersonalDia from "@/components/PersonalDia";
+
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: "Personal",
+  components: {
+    PersonalDia
+  },
   data() {
     return {
       buttonMsg: "编辑",
@@ -144,11 +142,10 @@ export default {
   created() {
     this.load();
   },
-
-  mounted() {
-    this.load();
-  },
   methods: {
+    openDia() {
+      this.$refs.dia.open();
+    },
     edit() {
       //  点击编辑后，<span> {{ design }}</span>变成输入框，点击保存后，变回<span> {{ design }}</span>
       if (this.buttonMsg === "编辑") {
@@ -157,6 +154,13 @@ export default {
       } else {
         this.buttonMsg = "编辑";
         this.isEditDesign = false;
+        //  TODO 将编辑得到的新个性签名发送到后端
+        this.request.post("/updateDesign", {
+          design: this.design,
+          email: this.email
+        }).then(res => {
+          console.log(res);
+        });
       }
     },
     load() {
@@ -165,7 +169,7 @@ export default {
         email: this.email
       }).then(res => {
         if (res.code === 200) {
-          console.log(res.nickname );
+          console.log(res.nickname);
           console.log(res);
           this.nickname = res.nickname
           this.design = res.design
@@ -177,19 +181,6 @@ export default {
           this.$message.error('获取用户信息失败')
         }
       })
-    },
-    reload() {
-      this.request.get("/user/info").then((res) => {
-        this.nickname = res.data.data.nickname;
-        this.design = res.data.data.design;
-        this.num1 = res.data.data.num1;
-        this.num2 = res.data.data.num2;
-        this.num3 = res.data.data.num3;
-        this.v = res.data.data.v;
-      })
-          .catch((err) => {
-            console.log(err);
-          });
     },
     backHome() {
       this.$router.push("/mainPage");

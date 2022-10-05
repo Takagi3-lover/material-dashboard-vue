@@ -131,7 +131,7 @@ export default {
               {
                 mail: this.user.email
               }).then(res => {
-            if (res.data.code === 200) {
+            if (res === 200) {
               this.$message({
                 message: '验证码发送成功，请前往邮箱查收',
                 type: 'success'
@@ -140,7 +140,7 @@ export default {
               ifCountStart = true;
             } else {
               this.$message({
-                message: res.data.msg,
+                message: "验证码发送失败，请稍后再试",
                 type: 'error'
               });
             }

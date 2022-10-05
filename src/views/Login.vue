@@ -70,7 +70,7 @@ export default {
               sessionStorage.setItem('email', this.user.username);
               this.$router.push('/mainPage');
             } else {
-              this.$message.error(res.data.msg);
+              this.$message.error("用户名或密码错误");
             }
           })
         } else {

@@ -5,7 +5,7 @@
 */
 
 <template>
-  <div >
+  <div>
     <!--    换绑邮箱页面，分步骤包括发送验证码，邮箱输入，换绑成功三个步骤-->
     <div
         style="margin-left: 160px ;margin-right: 200px;margin-top: 100px; background-color: #fff; width: 400px; height: 300px;
@@ -45,9 +45,9 @@
             <el-input size="medium" style="margin: 10px 0" prefix-icon="el-icon-lock" show-password
                       v-model="user.email" placeholder="新邮箱"></el-input>
           </el-form-item>
-          <el-form-item prop="email">
+          <el-form-item prop="confirmEmail">
             <el-input size="medium" style="margin: 10px 0" prefix-icon="el-icon-lock" show-password
-                      v-model="user.confirmEmail" placeholder="确认邮箱"></el-input>
+                      v-model="user.email_new" placeholder="确认邮箱"></el-input>
           </el-form-item>
           <el-form-item style="margin: 10px 0;text-align: center;">
             <el-button type="success" @click="prev">上一步</el-button>
@@ -77,7 +77,7 @@ export default {
   data() {
     return {
       //当前所属的步骤
-      active: 1,
+      active: 0,
       statusMsg: '发送验证码',
       ifSend: false,//是否发送验证码
       //存储找回密码可能用到的信息，包括邮箱，电话，密码，验证码等
@@ -86,9 +86,6 @@ export default {
         email_new: '',
         phone: '',
         code: '',
-        password: '',
-        confirmPassword: '',
-        confirmEmail: '',
       },
       changeEmailRule: {
         email: [
@@ -96,7 +93,7 @@ export default {
           {min: 10, max: 20, message: '长度在 10 到 20 个字符', trigger: 'blur'},
           {pattern: /^[a-zA-Z\d@.]{10,20}$/, message: '邮箱只能包含字母、数字、@和.', trigger: 'blur'}
         ],
-        confirmEmail: [
+        email_new: [
           {required: true, message: '请再次输入邮箱', trigger: 'blur'},
           {
             validator: (rule, value, callback) => {
@@ -106,29 +103,6 @@ export default {
                 callback();
               }
             }, trigger: 'blur'
-          }
-        ],
-        password: [
-          {required: true, message: '请输入密码', trigger: 'blur'},
-          {min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur'},
-          //  密码必须同时包含数字、大小写字母，长度在6到20个字符
-          {
-            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{6,20}$/,
-            message: '密码必须同时包含数字,大、小写字母，长度在6到20个字符',
-            trigger: 'blur'
-          }
-        ],
-        confirmPassword: [
-          {required: true, message: '请再次输入密码', trigger: 'blur'},
-          {
-            validator: (rule, value, callback) => {
-              if (value !== this.user.password) {
-                callback(new Error('两次输入密码不一致!'));
-              } else {
-                callback();
-              }
-            },
-            trigger: 'blur'
           }
         ],
       }
@@ -149,8 +123,11 @@ export default {
       this.$refs.userForm.validateField('email', (errorMsg) => {
         if (!errorMsg) {
           //向后端发送请求，发送验证码
-          this.request.post('/user/sendCode', this.user).then(res => {
-            if (res.data.code === 200) {
+          this.request.post('/sendCode',
+              {
+                mail: this.user.email
+              }).then(res => {
+            if (res === 200) {
               this.$message({
                 message: '验证码发送成功，请前往邮箱查收',
                 type: 'success'
@@ -159,7 +136,7 @@ export default {
               ifCountStart = true;
             } else {
               this.$message({
-                message: res.data.msg,
+                message: "验证码发送失败，请稍后再试",
                 type: 'error'
               });
             }
@@ -174,9 +151,9 @@ export default {
 
       //  若成功发送验证码，则开始倒计时，一分钟后可以再次发送
       if (ifCountStart) {
-        let count = 60;
+        let count = 120;
         let timer = setInterval(() => {
-          if (count > 0 && count <= 60) {
+          if (count > 0 && count <= 120) {
             count--;
             this.statusMsg = count + '秒';
           } else {
@@ -191,14 +168,15 @@ export default {
       //如果当前处在步骤第一步，则在进入下一步骤之前，先校验邮箱和验证码是否正确
       if (this.active === 0) {
         this.$refs.userForm.validate((errorMsg) => {
-          if (!errorMsg) {
+          console.log(errorMsg);
+          if (errorMsg) {
             //向后端提交邮箱和验证码，后端判断是否匹配，若匹配则身份验证成功，进入重置密码页面，否则显示错误信息
-            this.request.post('/user/verifyCode', this.user).then(res => {
-              if (res.data.code === 200) {
+            this.request.post('/identify', this.user).then(res => {
+              if (res.code === 200) {
                 this.active++;
               } else {
                 this.$message({
-                  message: res.data.msg,
+                  message: "验证码错误",
                   type: 'error'
                 });
               }
@@ -210,6 +188,33 @@ export default {
             });
           }
         })
+      } else if (this.active === 1) {
+      //  首先校验新旧邮箱是否正确，并且一致，然后向后端提交新密码，后端判断是否修改成功，若成功则显示成功信息，否则显示错误信息
+        this.$refs.userForm.validate((errorMsg) => {
+          console.log(errorMsg)
+          if (errorMsg) {
+            this.request.post('/updateEmail', this.user).then(res => {
+              if (res.code === 200) {
+                this.$message({
+                  message: "邮箱修改成功",
+                  type: 'success'
+                });
+                this.active++;
+              } else {
+                this.$message({
+                  message: "邮箱修改失败",
+                  type: 'error'
+                });
+              }
+            })
+          } else {
+            this.$message({
+              message: '请填写正确的邮箱',
+              type: 'error'
+            });
+          }
+        })
+
       } else {
         this.active++;
       }
