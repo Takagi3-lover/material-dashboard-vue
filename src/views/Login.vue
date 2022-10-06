@@ -32,7 +32,6 @@
 </template>
 
 <script>
-
 export default {
   //禁用eslint
   /* eslint-disable */
@@ -58,6 +57,7 @@ export default {
     }
   },
   methods: {
+    //登陆
     handleLogin() {
       //  TODO: 登录 验证用户名密码，发送给后端，如存在该用户，则跳转到首页，否则提示错误
       this.$refs.userForm.validate((errorMsg) => {

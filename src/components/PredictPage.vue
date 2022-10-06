@@ -102,6 +102,17 @@ export default {
       });
     },
     downloadTemplate() {
+      //获取用户头像
+      this.request.post('/getFile', {
+        username: '1621718895@qq.com',
+      }).then(res => {
+        console.log(res);
+        if (res.code === 200) {
+          console.log("success")
+        }
+      }).catch(err => {
+        console.log(err);
+      })
       this.$message({
         message: '下载成功',
         type: 'success'
@@ -115,14 +126,13 @@ export default {
       });
     },
     beforeUpload() {
-      this.uploadData = {username: '1621718895@qq.com'};
+      this.uploadData = {username: sessionStorage.getItem("email")};
       console.log(this.uploadData)
-      let promise = new Promise((resolve) => {
+      return new Promise((resolve) => {
         this.$nextTick(function () {
           resolve(true);
         });
-      });
-      return promise; //通过返回一个promis对象解决
+      }); //通过返回一个promis对象解决
     },
     dataProcess() {
       this.$message({

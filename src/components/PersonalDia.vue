@@ -18,7 +18,16 @@
         <div class="updateinfo">
           <div style="flex: auto">
             <el-form-item label="头像" prop="avatar" style="text-align: center">
-              <img style="width:150px;height:100px" src="@/assets/img/logo.png" alt=""/>
+              <el-upload
+                  class="avatar-uploader"
+                  action="/api/uploadIcon"
+                  :show-file-list="false"
+                  :on-success="handleAvatarSuccess"
+                  :data="uploadData"
+                  :before-upload="beforeAvatarUpload">
+              <img title="点击修改头像" style="width:150px;height:100px" src="@/assets/img/logo.png"
+                   alt=""/>
+              </el-upload>
             </el-form-item>
             <el-form-item label="个性签名" prop="design">
               <el-input v-model="form.design"></el-input>
@@ -27,7 +36,7 @@
           </div>
           <div class="left">
             <el-form-item label="邮箱" prop="email">
-              <el-input v-model="form.email"></el-input>
+              <el-input disabled v-model="form.email"></el-input>
             </el-form-item>
             <el-form-item label="昵称" prop="nickname">
               <el-input v-model="form.nickname"></el-input>
@@ -55,7 +64,7 @@
             </el-form-item>
 
             <el-form-item label="注册日期" prop="createDate">
-              <el-input disabled v-model="form.createDate" ></el-input>
+              <el-input disabled v-model="form.createDate"></el-input>
             </el-form-item>
             <el-form-item label="地区" prop="area">
               <el-input v-model="form.area"></el-input>
@@ -78,6 +87,7 @@ export default {
   name: "PersonalDia",
   data() {
     return {
+      uploadData: null,
       dialogVisible: false,
       form: {
         avatar: '',
@@ -103,60 +113,92 @@ export default {
     this.load();
   },
   methods: {
-    open() {
-      this.email = sessionStorage.getItem('email');
-      this.request.post('/getPersonInfo', {email: this.email}).then(res => {
-        if (res.code === 200) {
-          this.form.avatar = res.avatar
-          this.form.email = res.email
-          this.form.mobilePhoneNumber = res.mobilePhoneNumber
-          this.form.area = res.area
-          this.form.createDate = res.createDate
-          this.form.nickname = res.nickname
-          this.form.sex = res.sex
-          this.form.design = res.design
-        } else {
-          this.$message.error("信息拉取失败")
-        }
-      }).catch(() => {
-        this.$message({
-          message: '网络错误',
-          type: 'error'
+    handleAvatarSuccess(res, file) {
+      this.form.avatar = URL.createObjectURL(file.raw);
+    },
+    beforeAvatarUpload() {
+      this.uploadData = {username: sessionStorage.getItem("email")};
+      console.log(this.uploadData)
+      return new Promise((resolve) => {
+        this.$nextTick(function () {
+          resolve(true);
         });
-      })
-
-      this.dialogVisible = true;
+      }); //通过返回一个promis对象解决
+      // const isJPG = file.type === 'image/jpeg';
+      // const isLt2M = file.size / 1024 / 1024 < 2;
+      //
+      // if (!isJPG) {
+      //   this.$message.error('上传头像图片只能是 JPG 格式!');
+      // }
+      // if (!isLt2M) {
+      //   this.$message.error('上传头像图片大小不能超过 2MB!');
+      // }
+      // return isJPG && isLt2M;
     },
-    handleClose() {
-      this.dialogVisible = false;
-      // //发送信号，更新修改后的显示数据
-      // this.$emit("flesh");
-    },
-    submit() {
-      this.$refs['form'].validate((valid) => {
-        if (valid) {
-          this.request.post('/updatePersonInfo', this.form).then(res => {
-            if (res.code === 200) {
-              this.$message.success("修改成功")
-              this.dialogVisible = false;
-              //发送信号，更新修改后的显示数据
-              this.$emit("flesh");
-            } else {
-              this.$message.error("修改失败")
-            }
-          }).catch(() => {
-            this.$message({
-              message: '网络错误',
-              type: 'error'
-            });
-          })
-        } else {
-          this.$message.error("请检查输入")
-        }
+    //修改头像功能
+    editAvatar() {
+      this.$message({
+        message: '暂未开放',
+        type: 'warning'
       });
-    }
   },
-};
+
+  open() {
+    this.email = sessionStorage.getItem('email');
+    this.request.post('/getPersonInfo', {email: this.email}).then(res => {
+      if (res.code === 200) {
+        this.form.avatar = res.avatar
+        this.form.email = res.email
+        this.form.mobilePhoneNumber = res.mobilePhoneNumber
+        this.form.area = res.area
+        this.form.createDate = res.createDate
+        this.form.nickname = res.nickname
+        this.form.sex = res.sex
+        this.form.design = res.design
+      } else {
+        this.$message.error("信息拉取失败")
+      }
+    }).catch(() => {
+      this.$message({
+        message: '网络错误',
+        type: 'error'
+      });
+    })
+
+    this.dialogVisible = true;
+  },
+  handleClose() {
+    this.dialogVisible = false;
+    // //发送信号，更新修改后的显示数据
+    // this.$emit("flesh");
+  },
+  submit() {
+    this.$refs['form'].validate((valid) => {
+      if (valid) {
+        this.request.post('/updatePersonInfo', this.form).then(res => {
+          if (res.code === 200) {
+            this.$message.success("修改成功")
+            this.dialogVisible = false;
+            //发送信号，更新修改后的显示数据
+            this.$emit("flesh");
+          } else {
+            this.$message.error("修改失败")
+          }
+        }).catch(() => {
+          this.$message({
+            message: '网络错误',
+            type: 'error'
+          });
+        })
+      } else {
+        this.$message.error("请检查输入")
+      }
+    });
+  }
+}
+,
+}
+;
 </script>
 
 <style scoped>
@@ -172,5 +214,28 @@ export default {
 
 .right {
   overflow: hidden;
+}
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409EFF;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  line-height: 178px;
+  text-align: center;
+}
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
 }
 </style>
