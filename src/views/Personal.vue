@@ -10,7 +10,7 @@
     <div class="PersonTop">
       <!--      设置一个头像-->
       <div class="PersonTop_img">
-        <img src="@/assets/img/Ava.jpg" class="user-v-img" alt="用户头像"/>
+        <img :src=this.avatar class="user-v-img" alt="用户头像"/>
       </div>
 
       <!--      头像右侧介绍-->
@@ -128,7 +128,6 @@ export default {
     return {
       buttonMsg: "编辑",
       isEditDesign: false,
-      imgSrc: require("@/assets/img/personalBG.png"),
       avatar: require("@/assets/img/Ava.jpg"),
       nickname: "Ava",
       design: "关注...也不是不可以啦！",
@@ -169,16 +168,18 @@ export default {
         email: this.email
       }).then(res => {
         if (res.code === 200) {
-          console.log(res.nickname);
-          console.log(res);
           this.nickname = res.nickname
           this.design = res.design
           this.num1 = res.num1
           this.num2 = res.num2
           this.num3 = res.num3
           this.v = res.v_level
+
+          //  获取用户头像
+          this.avatar = 'http://localhost:9090/getIcon?username=' + this.nickname
+
         } else {
-          this.$message.error('获取用户信息失败')
+          this.$message.error('获取用户头像失败Personal')
         }
       })
     },

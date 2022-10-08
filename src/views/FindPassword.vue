@@ -138,6 +138,19 @@ export default {
               });
               this.ifSend = true;
               ifCountStart = true;
+              //  若成功发送验证码，则开始倒计时，10分钟后可以再次发送
+              if (ifCountStart) {
+                let count = 600;
+                let timer = setInterval(() => {
+                  if (count > 0 && count <= 600) {
+                    count--;
+                    this.statusMsg = count + '秒';
+                  } else {
+                    clearInterval(timer);
+                    this.statusMsg = '发送验证码';
+                  }
+                }, 1000)
+              }
             } else {
               this.$message({
                 message: "验证码发送失败，请稍后再试",
@@ -153,19 +166,7 @@ export default {
         }
       })
 
-      //  若成功发送验证码，则开始倒计时，一分钟后可以再次发送
-      if (ifCountStart) {
-        let count = 120;
-        let timer = setInterval(() => {
-          if (count > 0 && count <= 120) {
-            count--;
-            this.statusMsg = count + '秒';
-          } else {
-            clearInterval(timer);
-            this.statusMsg = '发送验证码';
-          }
-        }, 1000)
-      }
+
     },
     //下一步
     next() {

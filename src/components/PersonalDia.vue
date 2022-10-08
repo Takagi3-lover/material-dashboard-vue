@@ -25,8 +25,12 @@
                   :on-success="handleAvatarSuccess"
                   :data="uploadData"
                   :before-upload="beforeAvatarUpload">
-              <img title="点击修改头像" style="width:150px;height:100px" src="@/assets/img/logo.png"
-                   alt=""/>
+                <el-image
+                    title="点击修改头像" style="width:150px;height:100px"
+                    :src=this.form.avatar>
+                </el-image>
+                <!--                -->
+                <!--                <img title="点击修改头像" style="width:150px;height:100px" src={{this.form.avatar}} alt="">-->
               </el-upload>
             </el-form-item>
             <el-form-item label="个性签名" prop="design">
@@ -83,6 +87,14 @@
 
 <script>
 
+// export function getIcon(params) {
+//   return this.request({
+//     url: 'http://localhost:9090/getIcon',
+//     method: 'post',
+//     responseType: 'arraybuffer',
+//     params
+//   })
+// }
 export default {
   name: "PersonalDia",
   data() {
@@ -117,13 +129,15 @@ export default {
       this.form.avatar = URL.createObjectURL(file.raw);
     },
     beforeAvatarUpload() {
-      this.uploadData = {username: sessionStorage.getItem("email")};
+      this.uploadData = {username: this.form.nickname};
       console.log(this.uploadData)
       return new Promise((resolve) => {
         this.$nextTick(function () {
           resolve(true);
         });
       }); //通过返回一个promis对象解决
+
+      //判断上传的文件是否是图片
       // const isJPG = file.type === 'image/jpeg';
       // const isLt2M = file.size / 1024 / 1024 < 2;
       //
@@ -135,68 +149,73 @@ export default {
       // }
       // return isJPG && isLt2M;
     },
-    //修改头像功能
-    editAvatar() {
-      this.$message({
-        message: '暂未开放',
-        type: 'warning'
-      });
-  },
+    //打开修改个人信息对话框
+    open() {
+      this.email = sessionStorage.getItem('email');
+      this.request.post('/getPersonInfo', {email: this.email}).then(res => {
+        console.log(res);
+        if (res.code === 200) {
+          this.form.email = res.email
+          this.form.mobilePhoneNumber = res.mobilePhoneNumber
+          this.form.area = res.area
+          this.form.createDate = res.createDate
+          this.form.nickname = res.nickname
+          this.form.sex = res.sex
+          this.form.design = res.design
 
-  open() {
-    this.email = sessionStorage.getItem('email');
-    this.request.post('/getPersonInfo', {email: this.email}).then(res => {
-      if (res.code === 200) {
-        this.form.avatar = res.avatar
-        this.form.email = res.email
-        this.form.mobilePhoneNumber = res.mobilePhoneNumber
-        this.form.area = res.area
-        this.form.createDate = res.createDate
-        this.form.nickname = res.nickname
-        this.form.sex = res.sex
-        this.form.design = res.design
-      } else {
-        this.$message.error("信息拉取失败")
-      }
-    }).catch(() => {
-      this.$message({
-        message: '网络错误',
-        type: 'error'
-      });
-    })
+          //  获取用户头像
+          this.form.avatar = 'http://localhost:9090/getIcon?username=' + this.form.nickname
 
-    this.dialogVisible = true;
-  },
-  handleClose() {
-    this.dialogVisible = false;
-    // //发送信号，更新修改后的显示数据
-    // this.$emit("flesh");
-  },
-  submit() {
-    this.$refs['form'].validate((valid) => {
-      if (valid) {
-        this.request.post('/updatePersonInfo', this.form).then(res => {
-          if (res.code === 200) {
-            this.$message.success("修改成功")
-            this.dialogVisible = false;
-            //发送信号，更新修改后的显示数据
-            this.$emit("flesh");
-          } else {
-            this.$message.error("修改失败")
-          }
-        }).catch(() => {
-          this.$message({
-            message: '网络错误',
-            type: 'error'
-          });
-        })
-      } else {
-        this.$message.error("请检查输入")
-      }
-    });
+          // getIcon({ 'username': res.nickname }).then(function(response) {
+          //   // 将后台的图片二进制流传华为base64
+          //   return 'data:image/png;base64,' + btoa(
+          //       new Uint8Array(response).reduce((data, byte) => data + String.fromCharCode(byte), '')
+          //   )
+          // }).then(data => {
+          //   this.form.avatar = data // data即为图片地址
+          // })
+
+        } else {
+          this.$message.error("信息拉取失败PersonalDia")
+        }
+      }).catch(() => {
+        this.$message({
+          message: '网络错误PersonalDia',
+          type: 'error'
+        });
+      })
+      this.dialogVisible = true;
+    },
+    handleClose() {
+      this.dialogVisible = false;
+      // //发送信号，更新修改后的显示数据
+      // this.$emit("flesh");
+    },
+    submit() {
+      this.$refs['form'].validate((valid) => {
+        if (valid) {
+          this.request.post('/updatePersonInfo', this.form).then(res => {
+            if (res.code === 200) {
+              this.$message.success("修改成功")
+              this.dialogVisible = false;
+              //  刷新当前页面
+              window.location.reload();
+            } else {
+              this.$message.error("修改失败")
+            }
+          }).catch(() => {
+            this.$message({
+              message: '网络错误submit',
+              type: 'error'
+            });
+          })
+        } else {
+          this.$message.error("请检查输入")
+        }
+      });
+    }
   }
-}
-,
+  ,
 }
 ;
 </script>
@@ -215,6 +234,7 @@ export default {
 .right {
   overflow: hidden;
 }
+
 .avatar-uploader .el-upload {
   border: 1px dashed #d9d9d9;
   border-radius: 6px;
@@ -222,9 +242,11 @@ export default {
   position: relative;
   overflow: hidden;
 }
+
 .avatar-uploader .el-upload:hover {
   border-color: #409EFF;
 }
+
 .avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
@@ -233,6 +255,7 @@ export default {
   line-height: 178px;
   text-align: center;
 }
+
 .avatar {
   width: 178px;
   height: 178px;

@@ -110,7 +110,7 @@ export default {
         if (errorMsg) {
           //  校验通过
           this.request.post('/register', this.register).then(res => {
-            if (res.code=== 200) {
+            if (res.code === 200) {
               //  注册成功
               this.$message.success('注册成功');
               this.$router.push('/login');
@@ -147,6 +147,20 @@ export default {
           ).then(res => {
             if (res === 200) {
               ifCountStart = true;
+              this.$message.success('验证码发送成功');
+              //  若成功发送验证码，则开始倒计时，10分钟后失效
+              if (ifCountStart) {
+                let count = 600;
+                let timer = setInterval(() => {
+                  if (count > 0 && count <= 600) {
+                    count--;
+                    this.statusMsg = '验证码已发送，剩余' + count + '秒';
+                  } else {
+                    clearInterval(timer);
+                    this.statusMsg = '';
+                  }
+                }, 1000)
+              }
             } else {
               this.statusMsg = '验证码发送失败'
             }
@@ -156,19 +170,7 @@ export default {
         }
       })
 
-      //  若成功发送验证码，则开始倒计时，两分钟后失效
-      if (ifCountStart) {
-        let count = 120;
-        let timer = setInterval(() => {
-          if (count > 0 && count <= 120) {
-            count--;
-            this.statusMsg = '验证码已发送，剩余' + count + '秒';
-          } else {
-            clearInterval(timer);
-            this.statusMsg = '';
-          }
-        }, 1000)
-      }
+
     }
   }
 }

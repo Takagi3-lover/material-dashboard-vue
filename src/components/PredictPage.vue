@@ -25,7 +25,9 @@
       </div>
       <el-divider style="height: 1px"></el-divider>
       <div style="margin: 10px 0 10px 0">
-        <el-button type="primary" @click="downloadTemplate">下载模板文件</el-button>
+        <a href="http://localhost:9090/getFile">
+          <el-button type="primary" @click="downloadTemplate">下载模板文件</el-button>
+        </a>
       </div>
     </div>
     <div v-show="active===1" style="display: flex;
@@ -40,17 +42,19 @@
             :data="uploadData"
             :before-upload="beforeUpload"
             action="/api/uploadFile"
+            limit="1"
             :on-success="uploadFileSuccess">
           <i class="el-icon-upload"></i>
           <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-          <div class="el-upload__tip" slot="tip">只能上传模板文件，且不超过500kb</div>
+          <div class="el-upload__tip" slot="tip">只能上传模板文件</div>
         </el-upload>
       </div>
     </div>
     <div v-show="active===2">
       <!--  此时后端正在处理上一步前端传回的数据，此页面提示用户当前的进度-->
-      <div style="margin: 10px 0 10px 0">
-        <el-progress type="circle" :percentage="progress" :stroke-width="6"></el-progress>
+      <div  style="margin: 10px 0 10px 0">
+        <el-progress type="circle" :percentage="progress" :stroke-width="6"
+        :status="this.status"></el-progress>
       </div>
       <!--     根据isProcessFinished参数，展示相关的提示性文字-->
       <div v-show="isProcessFinished===false" style="font-size: 16px;margin: 10px">数据处理中，请稍后...</div>
@@ -74,8 +78,15 @@
     </div>
     <el-divider style="height: 1px"></el-divider>
     <div style="margin: 10px 0 10px 0">
+
       <el-button @click="prev">上一步</el-button>
-      <el-button type="primary" @click="next">下一步</el-button>
+      <el-button v-show="active!==2" @click="next" type="primary">下一步</el-button>
+      <el-button v-show="active===2"
+                 :disabled="!this.isProcessFinished"
+                 @click="next"
+                 type="primary">下一步
+      </el-button>
+
     </div>
   </div>
 </template>
@@ -85,46 +96,40 @@ export default {
   name: "PredictPage",
   data() {
     return {
-      active: 1,
+      active: 0,
       dialogImageUrl: '',
       dialogVisible: false,
       fileList: [],
       isProcessFinished: false,
       uploadData: null,
+      isSend: false,
+      progress: 0,
+      status:'',
     }
   },
   methods: {
+    //上传成功后提示成功
     uploadFileSuccess(response) {
       console.log(response);
+      this.isSend = true;
       this.$message({
         message: '上传成功',
         type: 'success'
       });
     },
+    //下载模板文件
     downloadTemplate() {
-      //获取用户头像
-      this.request.post('/getFile', {
-        username: '1621718895@qq.com',
-      }).then(res => {
-        console.log(res);
-        if (res.code === 200) {
-          console.log("success")
-        }
+      this.request.post('/getFile').then(res => {
+        this.$message({
+          message: '下载成功',
+          type: 'success'
+        });
       }).catch(err => {
         console.log(err);
       })
-      this.$message({
-        message: '下载成功',
-        type: 'success'
-      });
       this.next();
     },
-    uploadFile() {
-      this.$message({
-        message: '上传成功',
-        type: 'success'
-      });
-    },
+    //上传文件前的钩子,添加上传文件的参数
     beforeUpload() {
       this.uploadData = {username: sessionStorage.getItem("email")};
       console.log(this.uploadData)
@@ -134,20 +139,59 @@ export default {
         });
       }); //通过返回一个promis对象解决
     },
+
+    //数据处理进度
     dataProcess() {
-      this.$message({
-        message: '数据处理成功',
-        type: 'success'
-      });
+      this.progress = 0;
+      this.isProcessFinished = false;
+      this.status = '';
+      //TODO:此处获取用户的email，作为参数传给后端，从后端获取用户的等级，来提高效率
+      let email = sessionStorage.getItem("email");
+      //  设置动态进度条
+      //每秒随机增加进度条的进度，10s内到达100%
+      let timer = setInterval(() => {
+        this.progress += Math.floor(Math.random() * 10 + 1);
+        if (this.progress >= 100) {
+          this.progress = 100;
+          this.status = 'success';
+          clearInterval(timer);
+          this.isProcessFinished = true;
+        }
+      }, 250);
     },
+
+    //下一步
     next() {
-      if (this.active++ > 3) this.active = 0;
       if (this.active === 1) {
-        // this.$refs['upload'].clearFiles();
+        if (this.isSend === false) {
+          this.$message({
+            message: '请先上传文件',
+            type: 'warning'
+          });
+          return;
+        }
       }
+
+      if (++this.active > 3) this.active = 3;
+
+      if (this.active === 2) {
+        this.dataProcess();
+        // this.request.post('/predict', {username: sessionStorage.getItem("email")}).then(res => {
+        //   this.$message({
+        //     message: '数据处理成功',
+        //     type: 'success'
+        //   });
+        //   this.isProcessFinished = true;
+        //   this.normal = res.data.normal;
+        //   this.abnormal = res.data.abnormal;
+        // }).catch(err => {
+        //   console.log(err);
+        // })
+      }
+
     },
     prev() {
-      if (this.active-- < 0) this.active = 3;
+      if (--this.active < 0) this.active = 0;
     }
   }
 }
@@ -162,4 +206,6 @@ export default {
   padding: 0;
   background-color: white;
 }
+
+
 </style>

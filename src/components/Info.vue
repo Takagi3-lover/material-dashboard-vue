@@ -16,7 +16,7 @@
             <i class="el-icon-picture-outline"></i>
             头像
           </template>
-          <img class="img" src="@/assets/img/Ava.jpg" alt=""/>
+          <el-image class="img" :src=this.avatar alt=""/>
         </el-descriptions-item>
         <el-descriptions-item>
           <template slot="label">
@@ -95,7 +95,6 @@ export default {
     this.email = sessionStorage.getItem('email');
     this.request.post('/getPersonInfo', {email: this.email}).then(res => {
       if (res.code === 200) {
-        this.avatar = res.avatar
         this.email = res.email
         this.mobilePhoneNumber = res.mobilePhoneNumber
         this.area = res.area
@@ -107,12 +106,18 @@ export default {
           this.sex = '男'
         }
         this.design = res.design
+
+
+        //  获取用户头像
+        this.avatar = 'http://localhost:9090/getIcon?username=' + this.nickname
+
+
       } else {
-        this.$message.error("信息拉取失败")
+        this.$message.error("信息拉取失败info")
       }
     }).catch(() => {
       this.$message({
-        message: '网络错误',
+        message: '网络错误info',
         type: 'error'
       });
     })

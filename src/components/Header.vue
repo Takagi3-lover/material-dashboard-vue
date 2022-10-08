@@ -26,7 +26,8 @@ export default {
   data() {
     return {
       //头像路径
-      avatar: require("@/assets/img/Ava.jpg"),
+      //TODO:头像路径,获取用户名
+      avatar: 'http://localhost:9090/getIcon?username=' + "wangyuxuan",
       msg: "Welcome to Your Vue.js App"
     }
   },
@@ -37,16 +38,6 @@ export default {
     logout() {
       this.$router.push('/login')
     },
-    connectTest() {
-      //  访问https://55518v60i8.zicp.fun/hello这个网址，并在屏幕上打印返回结果
-      this.request.get('/hello').then(res => {
-        console.log(res)
-        this.$message({
-          message: res.data,
-          type: 'success'
-        })
-      })
-    }
   }
 
 }
