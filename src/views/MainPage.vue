@@ -68,12 +68,5 @@ body > .el-container {
   bottom: 0;
 }
 
-#building {
-  background: url("@/assets/img/city.png") no-repeat;
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  background-size: 100% 100%;
-}
 
 </style>

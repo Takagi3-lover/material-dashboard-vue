@@ -87,14 +87,6 @@
 
 <script>
 
-// export function getIcon(params) {
-//   return this.request({
-//     url: 'http://localhost:9090/getIcon',
-//     method: 'post',
-//     responseType: 'arraybuffer',
-//     params
-//   })
-// }
 export default {
   name: "PersonalDia",
   data() {
@@ -129,7 +121,7 @@ export default {
       this.form.avatar = URL.createObjectURL(file.raw);
     },
     beforeAvatarUpload() {
-      this.uploadData = {username: this.form.nickname};
+      this.uploadData = {email: this.form.email};
       console.log(this.uploadData)
       return new Promise((resolve) => {
         this.$nextTick(function () {
@@ -164,16 +156,7 @@ export default {
           this.form.design = res.design
 
           //  获取用户头像
-          this.form.avatar = 'http://localhost:9090/getIcon?username=' + this.form.nickname
-
-          // getIcon({ 'username': res.nickname }).then(function(response) {
-          //   // 将后台的图片二进制流传华为base64
-          //   return 'data:image/png;base64,' + btoa(
-          //       new Uint8Array(response).reduce((data, byte) => data + String.fromCharCode(byte), '')
-          //   )
-          // }).then(data => {
-          //   this.form.avatar = data // data即为图片地址
-          // })
+          this.form.avatar = 'http://localhost:9090/getIcon?email=' + this.form.email
 
         } else {
           this.$message.error("信息拉取失败PersonalDia")

@@ -1,7 +1,8 @@
 <template>
   <header style="height: 100%;background-color:rgb(34,34,34)">
     <div style="height: 100%">
-      <span style="margin-left:20px;margin-top: 0;font-size:30px;color: rgb(255,255,255)">SDP系统</span>
+      <div style="margin-left:20px;margin-top: -10px; height: 40%; font-size:20px;color: rgb(255,255,255)">软件缺陷分析与预测系统</div>
+      <div style="margin-left:20px;margin-top: 0;height: 20%; font-size:8px;color: rgb(255,255,255)">Software Defect and Prediction System</div>
     </div>
 
     <div style="height:100%">
@@ -27,7 +28,7 @@ export default {
     return {
       //头像路径
       //TODO:头像路径,获取用户名
-      avatar: 'http://localhost:9090/getIcon?username=' + "wangyuxuan",
+      avatar: 'http://localhost:9090/getIcon?email=' + sessionStorage.getItem("email"),
       msg: "Welcome to Your Vue.js App"
     }
   },
@@ -49,11 +50,8 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /*background: url("@/assets/img/header.png");*/
-  /*background-size: 100% 100%;*/
   /*背景设置为黑色渐变色*/
-  background-color: rgb(0, 0, 0);
-  /*  background-image: linear-gradient(180deg, #2af598 0%, #009efd 100%);*/
+  background-color: rgb(83, 122, 199);
 }
 
 /*设定头像图片样式*/

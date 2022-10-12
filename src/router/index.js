@@ -75,7 +75,7 @@ const routes = [
         path: '/admin',
         name: 'testPage',
         component: () => import('../views/testPage.vue')
-    }
+    },
 
 ]
 const router = new VueRouter({

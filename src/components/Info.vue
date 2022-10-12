@@ -109,8 +109,7 @@ export default {
 
 
         //  获取用户头像
-        this.avatar = 'http://localhost:9090/getIcon?username=' + this.nickname
-
+        this.avatar = 'http://localhost:9090/getIcon?email=' + this.email
 
       } else {
         this.$message.error("信息拉取失败info")

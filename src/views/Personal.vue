@@ -25,6 +25,9 @@
             <img src="@/assets/img/pro.png" class="user-v-img" alt="身份标识"/>
             <span class="user-v-font">高级用户</span>
           </div>
+          <div class="user-v" v-else>
+            <span class="user-v-font">普通用户</span>
+          </div>
           <!--          个性签名-->
           <!--          //  点击编辑后，<span> 变成输入框，点击保存后，变回<span> -->
           <div class="user_signature">
@@ -58,15 +61,15 @@
         <div class="user_num">
           <div>
             <div class="num_number">{{ num1 }}</div>
-            <span class="num_text">使用次数</span>
+            <span class="num_text">预测次数</span>
           </div>
           <div>
             <div class="num_number">{{ num2 }}</div>
-            <span class="num_text">**</span>
+            <span class="num_text">软件通过率</span>
           </div>
           <div>
             <div class="num_number">{{ num3 }}</div>
-            <span class="num_text">##</span>
+            <span class="num_text">最后使用时间</span>
           </div>
         </div>
       </div>
@@ -176,7 +179,7 @@ export default {
           this.v = res.v_level
 
           //  获取用户头像
-          this.avatar = 'http://localhost:9090/getIcon?username=' + this.nickname
+          this.avatar = 'http://localhost:9090/getIcon?email=' + sessionStorage.getItem('email')
 
         } else {
           this.$message.error('获取用户头像失败Personal')
@@ -268,7 +271,7 @@ export default {
   text-align: center;
   border-right: 1px dotted #999;
   box-sizing: border-box;
-  width: 80px;
+  width: 100px;
   height: 40px;
   line-height: 20px;
 }
