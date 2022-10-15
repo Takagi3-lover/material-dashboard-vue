@@ -96,7 +96,7 @@ export default {
     this.request.post('/getPersonInfo', {email: this.email}).then(res => {
       if (res.code === 200) {
         this.email = res.email
-        this.mobilePhoneNumber = res.mobilePhoneNumber
+        this.mobilePhoneNumber = res.mobilePhoneNumbers
         this.area = res.area
         this.createDate = res.createDate
         this.nickname = res.nickname

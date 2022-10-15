@@ -61,32 +61,89 @@
       <div v-show="isProcessFinished===true" style="font-size: 16px;margin: 10px">数据处理完成，请点击下一步</div>
     </div>
     <div v-show="active===3">
-      <!-- 展示出上一步预测出的结果并显示比例图-->
-      <div style="margin: 10px 0 10px 0">
-        <el-divider style="height: 1px"></el-divider>
-        <div style="font-size: 16px;margin: 10px">预测结果：</div>
-        <div style="font-size: 16px;margin: 10px">正常：{{ normal }}</div>
-        <div style="font-size: 16px;margin: 10px">异常：{{ abnormal }}</div>
-        <el-divider style="height: 1px"></el-divider>
-        <div style="margin: 10px 0 10px 0">
-          <el-progress type="circle" :percentage="normal" :stroke-width="6"></el-progress>
-          <el-progress type="circle" :percentage="abnormal" :stroke-width="6"></el-progress>
-        </div>
+      <!--      根据length的长度，生成对应行数的表格，表格有四列-->
+      <div>
+        <el-table
+            :data="tableData"
+            stripe
+            style="width: 60%;margin: auto"
+            max-height="350px">
+          <el-table-column type="expand">
+            <template slot-scope="props">
+              <el-form label-position="left" inline class="demo-table-expand">
+                <el-form-item label="编号">
+                  <span>{{ props.row.numbering }}</span>
+                </el-form-item>
+                <el-form-item label="预测结果">
+                  <span v-if="props.row.isHavingBug===true">没有缺陷</span>
+                  <span v-else>存在缺陷</span>
+                </el-form-item>
+                <el-form-item label="使用模型">
+                  <span>{{ props.row.modelType }}</span>
+                </el-form-item>
+                <el-form-item label="模型介绍">
+                  <span>{{ props.row.modelDesc }}</span>
+                </el-form-item>
+                <el-form-item label="模型准确率">
+                  <span>{{ props.row.modelAccuracy }}</span>
+                </el-form-item>
+                <el-form-item label="预测耗时">
+                  <span>{{ props.row.costTime }}</span>
+                </el-form-item>
+                <el-form-item label="预测完成时间">
+                  <span>{{ props.row.finishTime }}</span>
+                </el-form-item>
+              </el-form>
+            </template>
+          </el-table-column>
+          <el-table-column
+              type="index"
+              label="序号"
+              width="180"
+              :index="indexMethod">
+          </el-table-column>
+          <el-table-column
+              prop="isHavingBug"
+              label="预测结果"
+              width="220">
+            <template scope="scope">
+              <el-tag v-if="scope.row.isHavingBug===false" type="danger">存在缺陷</el-tag>
+              <el-tag v-else type="success">没有缺陷</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
+              prop="finishTime"
+              label="预测完成时间"
+          >
+          </el-table-column>
+        </el-table>
       </div>
-
-
     </div>
     <el-divider style="height: 1px"></el-divider>
     <div style="margin: 10px 0 10px 0">
 
-      <el-button @click="prev">上一步</el-button>
-      <el-button v-show="active!==2" @click="next" type="primary">下一步</el-button>
+      <el-button @click="prev"
+                 :disabled="this.active>=2">
+        上一步
+      </el-button>
+
+      <el-button v-show="active<2"
+                 @click="next"
+                 type="primary"
+      >
+        下一步
+      </el-button>
       <el-button v-show="active===2"
                  :disabled="!this.isProcessFinished"
                  @click="next"
                  type="primary">下一步
       </el-button>
-
+      <el-button v-show="active===3"
+                 @click="returnFirstStep"
+                 type="primary"
+      >
+        完成
+      </el-button>
     </div>
   </div>
 </template>
@@ -118,8 +175,32 @@ export default {
       isHavingBug: false,
       //处理是否结束
       isFinished: false,
-      normal: 90,
-      abnormal: 10
+      length: 0,
+      tableData: [{
+        numbering: '891222211',
+        isHavingBug: "存在缺陷",
+        modelType: '模型1',
+        modelDesc: '模型1的描述',
+        modelAccuracy: '0.9',
+        costTime: '1s',
+        finishTime: '2019-01-01 12:00:00'
+      }, {
+        numbering: '891222211',
+        isHavingBug: "没有缺陷",
+        modelType: '模型1',
+        modelDesc: '模型1的描述',
+        modelAccuracy: '0.9',
+        costTime: '1s',
+        finishTime: '2019-01-01 12:00:00'
+      }, {
+        numbering: '891222211',
+        isHavingBug: "存在缺陷",
+        modelType: '模型1',
+        modelDesc: '模型1的描述',
+        modelAccuracy: '0.9',
+        costTime: '1s',
+        finishTime: '2019-01-01 12:00:00'
+      }]
     }
   },
   created() {
@@ -134,6 +215,10 @@ export default {
     })
   },
   methods: {
+    indexMethod(index) {
+      return index + 1;
+    },
+
     //上传成功后提示成功
     uploadFileSuccess(response) {
       console.log(response);
@@ -145,6 +230,7 @@ export default {
     },
     //下载模板文件
     downloadTemplate() {
+      // eslint-disable-next-line no-unused-vars
       this.request.post('/getFile').then(res => {
         this.$message({
           message: '下载成功',
@@ -178,19 +264,19 @@ export default {
       //当isFinished为true时，将时间间隔缩短至100ms
       let timer = setInterval(() => {
         this.progress += Math.floor(Math.random() * 10 + 1);
-        // if (this.isFinished) {
-        //   clearInterval(timer);
-        //   processSpeed = 200;
-        //   setInterval(() => {
-        //     this.progress += Math.floor(Math.random() * 10 + 1);
-        //     if (this.progress > 100) {
-        //       this.progress = 100;
-        //       this.isProcessFinished = true;
-        //       this.status = 'success';
-        //       clearInterval(timer);
-        //     }
-        //   }, processSpeed);
-        // }
+        if (this.isFinished) {
+          clearInterval(timer);
+          processSpeed = 200;
+          setInterval(() => {
+            this.progress += Math.floor(Math.random() * 10 + 1);
+            if (this.progress > 100) {
+              this.progress = 100;
+              this.isProcessFinished = true;
+              this.status = 'success';
+              clearInterval(timer);
+            }
+          }, processSpeed);
+        }
         if (this.progress > 100) {
           this.progress = 100;
           this.status = 'success';
@@ -228,18 +314,32 @@ export default {
       if (this.active === 2) {
         this.reset();
         this.dataProcess();
-        this.request.post('/forecast', {email: sessionStorage.getItem("email")}).then(res => {
-          this.isHavingBug = res.isHavingBug;
+        this.request.post('/forecast', {
+          email: sessionStorage.getItem("email"),
+          v_level: this.vipLevel
+        }).then(res => {
+          this.tableData = res.result;
           this.isFinished = true;
         }).catch(err => {
           console.log(err);
         })
       }
     },
+
     prev() {
       this.reset();
       if (--this.active < 0) this.active = 0;
-    }
+    },
+
+    //预测结果展示完成后，用户返回初始步骤
+    returnFirstStep() {
+      this.progress = 0;
+      this.isProcessFinished = false;
+      this.status = 'warning';
+      this.isFinished = false;
+      this.active = 0;
+      this.isSend = false;
+    },
   }
 }
 </script>
@@ -252,6 +352,21 @@ export default {
   margin: 0;
   padding: 0;
   background-color: white;
+}
+
+.demo-table-expand {
+  font-size: 0;
+}
+
+.demo-table-expand label {
+  width: 90px;
+  color: #99a9bf;
+}
+
+.demo-table-expand .el-form-item {
+  margin-right: 0;
+  margin-bottom: 0;
+  width: 50%;
 }
 
 

@@ -60,15 +60,15 @@
         <!--        用户右侧数据显示-->
         <div class="user_num">
           <div>
-            <div class="num_number">{{ num1 }}</div>
+            <div class="num_number">{{ num }}</div>
             <span class="num_text">预测次数</span>
           </div>
           <div>
-            <div class="num_number">{{ num2 }}</div>
+            <div class="num_number">{{ passRate }}</div>
             <span class="num_text">软件通过率</span>
           </div>
           <div>
-            <div class="num_number">{{ num3 }}</div>
+            <div class="num_number">{{ lastTime }}</div>
             <span class="num_text">最后使用时间</span>
           </div>
         </div>
@@ -134,9 +134,9 @@ export default {
       avatar: require("@/assets/img/Ava.jpg"),
       nickname: "Ava",
       design: "关注...也不是不可以啦！",
-      num1: 13,
-      num2: 44,
-      num3: 990,
+      num: 13,
+      passRate: 0.9,
+      lastTime: "2020-05-20 12:00:00",
       v: 3,
       email: ""
     };
@@ -173,9 +173,9 @@ export default {
         if (res.code === 200) {
           this.nickname = res.nickname
           this.design = res.design
-          this.num1 = res.num1
-          this.num2 = res.num2
-          this.num3 = res.num3
+          this.num = res.num
+          this.passRate = res.passRate
+          this.lastTime = res.lastTime
           this.v = res.v_level
 
           //  获取用户头像
@@ -232,7 +232,7 @@ export default {
 }
 
 .user_text {
-  width: 60%;
+  width: 50%;
   height: 100%;
   line-height: 30px;
 }
@@ -261,7 +261,7 @@ export default {
 }
 
 .user_num {
-  width: 40%;
+  width: 46%;
   height: 100%;
   display: flex;
   align-items: center;
@@ -271,7 +271,7 @@ export default {
   text-align: center;
   border-right: 1px dotted #999;
   box-sizing: border-box;
-  width: 100px;
+  width: 150px;
   height: 40px;
   line-height: 20px;
 }
@@ -281,7 +281,7 @@ export default {
 }
 
 .num_number {
-  font-size: 20px;
+  font-size: 18px;
   color: #333;
 }
 

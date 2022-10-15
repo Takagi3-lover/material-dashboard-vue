@@ -11,8 +11,7 @@
           text-color="rgb(255,255,255)"
           active-text-color="rgb(35, 122, 179)">
               <el-menu-item><i class="el-icon-location"></i>缺陷预测</el-menu-item>
-              <el-menu-item><i class="el-icon-document"></i>未知功能</el-menu-item>
-              <el-menu-item><i class="el-icon-setting"></i>神秘功能</el-menu-item>
+              <el-menu-item><i class="el-icon-document"></i>训练模型(未开放)</el-menu-item>
       </el-menu>
   </div>
 </template>
