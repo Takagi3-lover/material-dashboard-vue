@@ -163,7 +163,7 @@ export default {
             password_old: this.user.password_old,
             password_new: this.user.password
           }).then(res => {
-            if (res === 200) {
+            if (res.code === 200) {
               this.$message({
                 message: '密码修改成功',
                 type: 'success'

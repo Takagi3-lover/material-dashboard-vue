@@ -128,27 +128,14 @@ export default {
           resolve(true);
         });
       }); //通过返回一个promis对象解决
-
-      //判断上传的文件是否是图片
-      // const isJPG = file.type === 'image/jpeg';
-      // const isLt2M = file.size / 1024 / 1024 < 2;
-      //
-      // if (!isJPG) {
-      //   this.$message.error('上传头像图片只能是 JPG 格式!');
-      // }
-      // if (!isLt2M) {
-      //   this.$message.error('上传头像图片大小不能超过 2MB!');
-      // }
-      // return isJPG && isLt2M;
     },
     //打开修改个人信息对话框
     open() {
       this.email = sessionStorage.getItem('email');
       this.request.post('/getPersonInfo', {email: this.email}).then(res => {
-        console.log(res);
         if (res.code === 200) {
           this.form.email = res.email
-          this.form.mobilePhoneNumber = res.mobilePhoneNumber
+          this.form.mobilePhoneNumber = res.mobilePhoneNumbers
           this.form.area = res.area
           this.form.createDate = res.createDate
           this.form.nickname = res.nickname
